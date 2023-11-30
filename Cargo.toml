@@ -1,0 +1,10 @@
+[package]
+name = "zen_atc"
+version = "0.1.0"
+edition = "2021"
+authors = [ "Isaiah R. <draqonfyre@yahoo.com>" ]
+description = "Air Traffic Control game based on the FreeBSD version"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
