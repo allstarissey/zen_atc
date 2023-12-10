@@ -5,7 +5,7 @@ use super::{
 
 pub struct Command<'a> {
     command_type: CommandType,
-    command_condition: CommandCondition,
+    command_condition: Option<CommandCondition>,
     plane: &'a Plane,
 }
 
