@@ -1,6 +1,8 @@
+use serde::Deserialize;
+
 use super::util::{Direction, Point};
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub enum Object {
     Airport {
         position: Point,
