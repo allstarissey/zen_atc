@@ -3,27 +3,27 @@ use super::util::{Direction, Point};
 #[derive(Debug)]
 pub enum Object {
     Airport {
-        pos: Point,
+        position: Point,
         direction: Direction,
         label: Option<u8>,
     },
     Beacon {
-        pos: Point,
+        position: Point,
         label: Option<u8>,
     },
     Exit {
-        pos: Point,
+        position: Point,
         direction: Direction,
         label: Option<u8>,
     },
 }
 
 impl Object {
-    pub fn pos(&self) -> &Point {
+    pub fn position(&self) -> &Point {
         match self {
-            Object::Airport { pos, .. } => pos,
-            Object::Beacon { pos, .. } => pos,
-            Object::Exit { pos, .. } => pos,
+            Object::Airport { position: pos, .. } => pos,
+            Object::Beacon { position: pos, .. } => pos,
+            Object::Exit { position: pos, .. } => pos,
         }
     }
 

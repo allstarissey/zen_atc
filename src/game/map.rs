@@ -9,7 +9,7 @@ pub struct Map {
     width: u16,
     height: u16,
     spawn_chance: f32,
-    tick_rate: Duration,
+    tick_rate: f32,
     objects: Vec<Object>,
     lines: Vec<Line>,
 }
@@ -57,7 +57,7 @@ impl Map {
     fn validate_collisions(&self) -> Result<(), MapError> {
         for (k, object_a) in self.objects.iter().enumerate() {
             for object_b in self.objects.iter().skip(k + 1) {
-                if object_a.pos() == object_b.pos() {
+                if object_a.position() == object_b.position() {
                     return Err(MapError::ObjectPlacement(
                         ObjectPlacementError::ConflictedSpace(object_a, object_b),
                     ));
@@ -76,7 +76,7 @@ impl Map {
             .partition(|o| matches!(o, Object::Exit { .. }));
 
         for object in objects {
-            let Point(x, y) = object.pos();
+            let Point(x, y) = object.position();
 
             if *x == 0 || *x > width || *y == 0 || *y > height {
                 return Err(MapError::ObjectPlacement(
@@ -86,7 +86,7 @@ impl Map {
         }
 
         for exit in exits {
-            let Point(x, y) = exit.pos();
+            let Point(x, y) = exit.position();
 
             let border_left = *x == 0;
             let border_top = *y == 0;
@@ -94,7 +94,9 @@ impl Map {
             let border_bottom = *x == height + 1;
 
             if !(border_left || border_top || border_right || border_bottom) {
-                return Err(MapError::ObjectPlacement(ObjectPlacementError::NotOnEdge(exit)));
+                return Err(MapError::ObjectPlacement(ObjectPlacementError::NotOnEdge(
+                    exit,
+                )));
             }
 
             let on_valid_edge = match exit.direction().unwrap() {
@@ -109,7 +111,9 @@ impl Map {
             };
 
             if !on_valid_edge {
-                return Err(MapError::ObjectPlacement(ObjectPlacementError::InvalidDirection(exit)));
+                return Err(MapError::ObjectPlacement(
+                    ObjectPlacementError::InvalidDirection(exit),
+                ));
             }
         }
 
