@@ -1,0 +1,127 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "title": "Zen ATC Map Schema",
+    "description": "Maps for zen_atc",
+    "properties": {
+        "width": {
+            "type": "integer",
+            "description": "Width of the map",
+            "exclusiveMinimum": 0
+        },
+        "height": {
+            "type": "integer",
+            "description": "Height of the map",
+            "exclusiveMinimum": 0
+        },
+        "tick_rate": {
+            "type": "number",
+            "description": "Seconds per tick",
+            "exclusiveMinimum": 0
+        },
+        "spawn_chance": {
+            "type": "number",
+            "description": "Spawn chance",
+            "exclusiveMinimum": 0,
+            "exclusiveMaximum": 1
+        },
+        "objects": {
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/object"
+            },
+            "uniqueItems": true
+        },
+        "lines": {
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/line"
+            }
+        }
+    },
+    "required": [
+        "width",
+        "height",
+        "tick_rate",
+        "spawn_chance",
+        "objects",
+        "lines"
+    ],
+    "$defs": {
+        "object": {
+            "anyOf": [
+                { "$ref": "#/$defs/airport" },
+                { "$ref": "#/$defs/beacon" },
+                { "$ref": "#/$defs/exit" }
+            ]
+        },
+        "airport": {
+            "type": "object",
+            "properties": {
+                "Airport": {
+                    "type": "object",
+                    "properties": {
+                        "position": {
+                            "$ref": "#/$defs/position"
+                        },
+                        "direction": {
+                            "$ref": "#/$defs/direction"
+                        }
+                    },
+                    "required": ["position", "direction"]
+                }
+            }
+        },
+        "beacon": {
+            "type": "object",
+            "properties": {
+                "Beacon": {
+                    "type": "object",
+                    "properties": {
+                        "position": {
+                            "$ref": "#/$defs/position"
+                        }
+                    },
+                    "required": ["position"]
+                }
+            }
+        },
+        "exit": {
+            "type": "object",
+            "properties": {
+                "Exit": {
+                    "type": "object",
+                    "properties": {
+                        "position": {
+                            "$ref": "#/$defs/position"
+                        },
+                        "direction": {
+                            "$ref": "#/$defs/direction"
+                        }
+                    },
+                    "required": ["position", "direction"]
+                }
+            }
+        },
+        "line": {
+            "type": "object",
+            "properties": {
+                "start": {
+                    "$ref": "#/$defs/position"
+                },
+                "end": {
+                    "$ref": "#/$defs/position"
+                }
+            },
+            "required": ["start", "end"]
+        },
+        "position": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2
+        },
+        "direction": {
+            "type": "string",
+            "enum": ["North", "Northeast", "East", "Southeast", "South", "Southwest", "West", "Northwest"]
+        }
+    }
+}

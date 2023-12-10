@@ -1,10 +1,14 @@
-use std::time::Duration;
+use serde::Deserialize;
 
-use super::{object::Object, util::{Point, Direction}};
+use super::{
+    object::Object,
+    util::{Direction, Point},
+};
 
 const MINIMUM_WIDTH: u16 = 5;
 const MINIMUM_HEIGHT: u16 = 5;
 
+#[derive(Deserialize)]
 pub struct Map {
     width: u16,
     height: u16,
@@ -137,7 +141,7 @@ impl Map {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct Line(Point, Point);
 
 impl Line {

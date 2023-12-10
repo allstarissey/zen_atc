@@ -1,19 +1,27 @@
+use serde::Deserialize;
+
 use super::util::{Direction, Point};
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub enum Object {
     Airport {
         position: Point,
         direction: Direction,
+
+        #[serde(skip)]
         label: Option<u8>,
     },
     Beacon {
         position: Point,
+
+        #[serde(skip)]
         label: Option<u8>,
     },
     Exit {
         position: Point,
         direction: Direction,
+
+        #[serde(skip)]
         label: Option<u8>,
     },
 }

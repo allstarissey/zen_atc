@@ -1,7 +1,9 @@
-#[derive(Debug, PartialEq)]
+use serde::Deserialize;
+
+#[derive(Debug, Deserialize, PartialEq)]
 pub struct Point(pub u16, pub u16);
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub enum Direction {
     North,
     Northeast,
