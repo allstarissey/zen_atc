@@ -8,6 +8,12 @@ pub struct Plane {
     label: char,
 }
 
+impl Plane {
+    pub fn label(&self) -> &char {
+        &self.label
+    }
+}
+
 #[derive(Debug)]
 pub enum MarkStatus {
     Marked,

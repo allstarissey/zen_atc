@@ -58,4 +58,16 @@ impl Object {
             Object::Exit { .. } => "exit".to_owned(),
         }
     }
+
+    pub fn is_airport(&self) -> bool {
+        matches!(self, Object::Airport { .. })
+    }
+
+    pub fn is_beacon(&self) -> bool {
+        matches!(self, Object::Beacon { .. })
+    }
+
+    pub fn is_exit(&self) -> bool {
+        matches!(self, Object::Exit { .. })
+    }
 }

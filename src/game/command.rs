@@ -73,7 +73,7 @@ impl CommandWriter {
                 }
             }
             5 => {
-                if matches!((prev_char, input), ('a' | 'b', '0'..='9')) {
+                if matches!((prev_char, input), ('a' | 'b' | '0'..='9', '0'..='9')) {
                     self.cur_string.push(input)
                 }
             }
@@ -88,4 +88,74 @@ impl CommandWriter {
     pub fn clear(&mut self) {
         self.cur_string.clear();
     }
+
+    pub fn build<'a>(&'a self, planes: &'a [Plane], objects: &'a [Object]) -> Option<Command> {
+        if self.cur_string.is_empty() {
+            return None;
+        }
+
+        let mut string_iter = self.cur_string.chars();
+
+        let plane_char = string_iter.next().unwrap();
+        let plane = planes.iter().find(|p| p.label() == &plane_char)?;
+
+        let command_type_chars: [char; 2] = string_iter
+            .by_ref()
+            .take(2)
+            .collect::<Vec<char>>()
+            .try_into()
+            .ok()?;
+        let command_type = match command_type_chars {
+            ['t', dir] => Some(CommandType::Turn(Direction::try_from(dir).ok()?)),
+            ['c', alt] => Some(CommandType::Climb(to_digit(alt)?)),
+            ['d', alt] => Some(CommandType::Dive(to_digit(alt)?)),
+            ['m', _] => Some(CommandType::ChangeMark(MarkStatus::Marked)),
+            ['u', _] => Some(CommandType::ChangeMark(MarkStatus::Unmarked)),
+            ['i', _] => Some(CommandType::ChangeMark(MarkStatus::Ignored)),
+            _ => None,
+        }?;
+
+        let condition_chars_vec: Vec<char> = string_iter.collect();
+        if condition_chars_vec.is_empty() {
+            return Some(Command {
+                command_type,
+                command_condition: None,
+                plane,
+            });
+        }
+
+        let condition_chars: [char; 3] = condition_chars_vec.try_into().ok()?;
+        let command_condition = match condition_chars {
+            ['a', 'a', label] => {
+                let label = to_digit(label)?;
+                let airport = objects.iter().find(|o| {
+                    o.is_airport() && o.label().unwrap() == &label
+                })?;
+
+                Some(CommandCondition::ArriveAirport(airport))
+            }
+            ['a', 'b', label] => {
+                let label = to_digit(label)?;
+                let beacon = objects.iter().find(|o| {
+                    o.is_beacon() && o.label().unwrap() == &label
+                })?;
+
+                Some(CommandCondition::ArriveBeacon(beacon))
+            }
+            ['i', digit_tens, digit_ones] => Some(CommandCondition::Delay(
+                to_digit(digit_tens)? * 10u8 + to_digit(digit_ones)?,
+            )),
+            _ => None,
+        };
+
+        Some(Command {
+            command_type,
+            command_condition,
+            plane,
+        })
+    }
+}
+
+fn to_digit(ch: char) -> Option<u8> {
+    Some(ch.to_digit(10)? as u8)
 }

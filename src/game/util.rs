@@ -14,3 +14,21 @@ pub enum Direction {
     West,
     Northwest,
 }
+
+pub struct NoMatchError;
+impl TryFrom<char> for Direction {
+    type Error = NoMatchError;
+    fn try_from(value: char) -> Result<Self, Self::Error> {
+        match value {
+            'w' => Ok(Direction::North),
+            'e' => Ok(Direction::Northeast),
+            'd' => Ok(Direction::East),
+            'c' => Ok(Direction::Southeast),
+            'x' => Ok(Direction::South),
+            'z' => Ok(Direction::Southwest),
+            'a' => Ok(Direction::West),
+            'q' => Ok(Direction::Northwest),
+            _ => Err(NoMatchError),
+        }
+    }
+}
