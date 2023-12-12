@@ -1,5 +1,6 @@
 use super::util::{Direction, Point};
 
+#[derive(Debug)]
 pub struct Plane {
     position: Point,
     direction: Direction,
@@ -7,6 +8,7 @@ pub struct Plane {
     label: char,
 }
 
+#[derive(Debug)]
 pub enum MarkStatus {
     Marked,
     Unmarked,

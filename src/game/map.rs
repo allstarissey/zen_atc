@@ -8,7 +8,7 @@ use super::{
 const MINIMUM_WIDTH: u16 = 5;
 const MINIMUM_HEIGHT: u16 = 5;
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct Map {
     width: u16,
     height: u16,

@@ -1,27 +1,32 @@
 use super::{
+    object::Object,
     plane::{MarkStatus, Plane},
     util::Direction,
 };
 
+#[derive(Debug)]
 pub struct Command<'a> {
     command_type: CommandType,
-    command_condition: Option<CommandCondition>,
+    command_condition: Option<CommandCondition<'a>>,
     plane: &'a Plane,
 }
 
+#[derive(Debug)]
 pub enum CommandType {
-    Climb(u16),
-    Dive(u16),
+    Climb(u8),
+    Dive(u8),
     Turn(Direction),
     ChangeMark(MarkStatus),
 }
 
-pub enum CommandCondition {
-    ArriveAirport(u8),
-    ArriveBeacon(u8),
+#[derive(Debug)]
+pub enum CommandCondition<'a> {
+    ArriveAirport(&'a Object),
+    ArriveBeacon(&'a Object),
     Delay(u8),
 }
 
+#[derive(Debug)]
 pub struct CommandWriter {
     cur_string: String,
 }
