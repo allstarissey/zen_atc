@@ -89,6 +89,7 @@ impl CommandWriter {
         self.cur_string.clear();
     }
 
+    //? Change Option<Command> to Result<Command, CommandBuildError>
     pub fn build<'a>(&'a self, planes: &'a [Plane], objects: &'a [Object]) -> Option<Command> {
         if self.cur_string.is_empty() {
             return None;
@@ -128,17 +129,17 @@ impl CommandWriter {
         let command_condition = match condition_chars {
             ['a', 'a', label] => {
                 let label = to_digit(label)?;
-                let airport = objects.iter().find(|o| {
-                    o.is_airport() && o.label().unwrap() == &label
-                })?;
+                let airport = objects
+                    .iter()
+                    .find(|o| o.is_airport() && o.label().unwrap() == &label)?;
 
                 Some(CommandCondition::ArriveAirport(airport))
             }
             ['a', 'b', label] => {
                 let label = to_digit(label)?;
-                let beacon = objects.iter().find(|o| {
-                    o.is_beacon() && o.label().unwrap() == &label
-                })?;
+                let beacon = objects
+                    .iter()
+                    .find(|o| o.is_beacon() && o.label().unwrap() == &label)?;
 
                 Some(CommandCondition::ArriveBeacon(beacon))
             }
@@ -156,6 +157,90 @@ impl CommandWriter {
     }
 }
 
+impl std::fmt::Display for CommandWriter {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut display_string = String::from("Plane ");
+        let mut chars = self.cur_string.chars();
+
+        let plane = match chars.next() {
+            Some(p) => p,
+            None => return Ok(()),
+        };
+        display_string.push(plane);
+
+        let command_type = match chars.next() {
+            Some('c') => " climb to",
+            Some('d') => " dive to",
+            Some('t') => " turn",
+            Some('m') => " set marked",
+            Some('u') => " set unmarked",
+            Some('i') => " set dormant",
+            Some(x) => panic!("Invalid command character encountered: {x}"),
+            None => return write!(f, "{display_string}"),
+        };
+        display_string.push_str(command_type);
+
+        let command_arg = match chars.next() {
+            Some(' ') => "".to_owned(),
+            Some(ch) if is_direction(ch) => format!(" {}", Direction::try_from(ch).unwrap()),
+            Some(num) if num.is_numeric() => format!(" {num}000 feet"),
+            Some(x) => panic!("Invalid command argument encountered: {x}"),
+            None => return write!(f, "{display_string}"),
+        };
+        display_string.push_str(&command_arg);
+
+        let condition_type = match chars.next() {
+            Some('i') => "in",
+            Some('a') => "at",
+            Some(x) => panic!("Invalid condition type encountered: {x}"),
+            None => return write!(f, "{display_string}"),
+        };
+        display_string.push_str(condition_type);
+
+        let is_delay: bool;
+        let condition_arg_1 = match chars.next() {
+            Some('a') => {
+                is_delay = false;
+                " airport".to_owned()
+            }
+            Some('b') => {
+                is_delay = false;
+                " beacon".to_owned()
+            }
+            Some(num) if num.is_numeric() => {
+                is_delay = true;
+                format!(" {num}")
+            }
+            Some(x) => panic!("Invalid condition argument encountered: {x}"),
+            None => return write!(f, "{display_string}"),
+        };
+        display_string.push_str(&condition_arg_1);
+
+        let condition_arg_2 = match chars.next() {
+            Some(num) if num.is_numeric() => {
+                if is_delay {
+                    format!("{num} seconds")
+                } else {
+                    num.to_string()
+                }
+            }
+            Some(x) => panic!("Invalid condition argument encountered: {x}"),
+            None => return write!(f, "{display_string}"),
+        };
+        display_string.push_str(&condition_arg_2);
+
+        write!(f, "{display_string}")
+    }
+}
+
 fn to_digit(ch: char) -> Option<u8> {
     Some(ch.to_digit(10)? as u8)
+}
+
+fn is_direction(ch: char) -> bool {
+    use super::util::DIRECTION_CHARS;
+    if !ch.is_alphabetic() {
+        return false;
+    }
+    DIRECTION_CHARS.iter().any(|c| c == &ch)
 }

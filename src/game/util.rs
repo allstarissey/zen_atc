@@ -3,6 +3,8 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Point(pub u16, pub u16);
 
+pub const DIRECTION_CHARS: [char; 8] = ['q', 'w', 'e', 'a', 'd', 'z', 'x', 'c'];
+
 #[derive(Debug, Deserialize)]
 pub enum Direction {
     North,
@@ -15,6 +17,24 @@ pub enum Direction {
     Northwest,
 }
 
+impl std::fmt::Display for Direction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let str = match self {
+            Direction::North => "North",
+            Direction::Northeast => "Northeast",
+            Direction::East => "East",
+            Direction::Southeast => "Southeast",
+            Direction::South => "South",
+            Direction::Southwest => "Southwest",
+            Direction::West => "West",
+            Direction::Northwest => "Northwest",
+        };
+
+        write!(f, "{str}")
+    }
+}
+
+#[derive(Debug)]
 pub struct NoMatchError;
 impl TryFrom<char> for Direction {
     type Error = NoMatchError;
