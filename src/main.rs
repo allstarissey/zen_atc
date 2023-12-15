@@ -17,7 +17,8 @@ mod ui;
 type BackendType = CrosstermBackend<io::Stdout>;
 
 fn main() {
-    let terminal = match instantiate_terminal() {
+    use game::App;
+    let mut terminal = match instantiate_terminal() {
         Ok(t) => t,
         Err(e) => {
             eprintln!("Error while instantiating terminal: {e}");
@@ -25,6 +26,30 @@ fn main() {
         }
     };
 
+    // ...
+    use std::time::{Duration, Instant};
+    fn sleep(dur: Duration) {
+        let start = Instant::now();
+        while start.elapsed() < dur {}
+    }
+
+    terminal.set_cursor(0, 0).unwrap();
+
+    let path = std::path::PathBuf::from("/mnt/dev/Rust/zen_atc/test/map.json");
+    let app = match App::new(path) {
+        Ok(a) => a,
+        Err(e) => {
+            if let Err(e) = reset_terminal(terminal) {
+                eprintln!("Error while resetting terminal: {e}");
+            }
+            eprintln!("Error while loading map: {e}");
+            return;
+        }
+    };
+
+    terminal.draw(|f| ui::ui(f, &app)).unwrap();
+
+    sleep(Duration::from_secs(5));
     // ...
 
     if let Err(e) = reset_terminal(terminal) {
