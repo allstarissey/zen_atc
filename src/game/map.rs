@@ -147,6 +147,14 @@ impl Map {
     pub fn height(&self) -> &u16 {
         &self.height
     }
+
+    pub fn tick_rate(&self) -> &f32 {
+        &self.tick_rate
+    }
+
+    pub fn objects(&self) -> &[Object] {
+        &self.objects
+    }
 }
 
 #[derive(Debug, Deserialize)]
