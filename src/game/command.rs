@@ -81,7 +81,9 @@ impl CommandWriter {
     }
 
     pub fn pop(&mut self) {
-        self.cur_string.pop();
+        if let Some('_') = self.cur_string.pop() {
+            self.cur_string.pop();
+        }
     }
 
     pub fn clear(&mut self) {
@@ -164,29 +166,29 @@ impl Default for CommandWriter {
 
 impl std::fmt::Display for CommandWriter {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut display_string = String::from("Plane ");
+        let mut display_string = String::new();
         let mut chars = self.cur_string.chars();
 
         let plane = match chars.next() {
-            Some(p) => p,
+            Some(p) => format!("{p}:"),
             None => return Ok(()),
         };
-        display_string.push(plane);
+        display_string.push_str(&plane);
 
         let command_type = match chars.next() {
-            Some('c') => " climb to",
-            Some('d') => " dive to",
+            Some('c') => " climb",
+            Some('d') => " dive",
             Some('t') => " turn",
-            Some('m') => " set marked",
-            Some('u') => " set unmarked",
-            Some('i') => " set dormant",
+            Some('m') => " mark",
+            Some('u') => " unmark",
+            Some('i') => " ignore",
             Some(x) => panic!("Invalid command character encountered: {x}"),
             None => return write!(f, "{display_string}"),
         };
         display_string.push_str(command_type);
 
         let command_arg = match chars.next() {
-            Some(' ') => "".to_owned(),
+            Some('_') => "".to_owned(),
             Some(ch) if is_direction(ch) => format!(" {}", Direction::try_from(ch).unwrap()),
             Some(num) if num.is_numeric() => format!(" {num}000 feet"),
             Some(x) => panic!("Invalid command argument encountered: {x}"),
@@ -195,8 +197,8 @@ impl std::fmt::Display for CommandWriter {
         display_string.push_str(&command_arg);
 
         let condition_type = match chars.next() {
-            Some('i') => "in",
-            Some('a') => "at",
+            Some('i') => " in",
+            Some('a') => " at",
             Some(x) => panic!("Invalid condition type encountered: {x}"),
             None => return write!(f, "{display_string}"),
         };
@@ -206,11 +208,11 @@ impl std::fmt::Display for CommandWriter {
         let condition_arg_1 = match chars.next() {
             Some('a') => {
                 is_delay = false;
-                " airport".to_owned()
+                " airport:".to_owned()
             }
             Some('b') => {
                 is_delay = false;
-                " beacon".to_owned()
+                " beacon:".to_owned()
             }
             Some(num) if num.is_numeric() => {
                 is_delay = true;
@@ -226,7 +228,7 @@ impl std::fmt::Display for CommandWriter {
                 if is_delay {
                     format!("{num} seconds")
                 } else {
-                    num.to_string()
+                    format!(" {num}")
                 }
             }
             Some(x) => panic!("Invalid condition argument encountered: {x}"),
