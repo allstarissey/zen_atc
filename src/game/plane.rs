@@ -1,25 +1,31 @@
-use super::util::{Direction, Point};
+use super::{util::{Direction, Point}, command::Command};
 
 #[derive(Debug)]
 pub struct Plane {
+    label: char,
     position: Point,
     direction: Direction,
     mark_status: MarkStatus,
-    label: char,
+    commands: Vec<Command>,
 }
 
 impl Plane {
     pub fn new(position: Point, direction: Direction, label: char) -> Self {
         Self {
+            label,
             position,
             direction,
-            label,
             mark_status: MarkStatus::Marked,
+            commands: Vec::new(),
         }
     }
 
     pub fn label(&self) -> &char {
         &self.label
+    }
+
+    pub fn push_command(&mut self, command: Command) {
+        self.commands.push(command);
     }
 }
 
