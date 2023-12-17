@@ -20,14 +20,14 @@ pub enum Direction {
 impl std::fmt::Display for Direction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let str = match self {
-            Direction::North => "North",
-            Direction::Northeast => "Northeast",
-            Direction::East => "East",
-            Direction::Southeast => "Southeast",
-            Direction::South => "South",
-            Direction::Southwest => "Southwest",
-            Direction::West => "West",
-            Direction::Northwest => "Northwest",
+            Direction::North => "north",
+            Direction::Northeast => "northeast",
+            Direction::East => "east",
+            Direction::Southeast => "southeast",
+            Direction::South => "south",
+            Direction::Southwest => "southwest",
+            Direction::West => "west",
+            Direction::Northwest => "northwest",
         };
 
         write!(f, "{str}")
