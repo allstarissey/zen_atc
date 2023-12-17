@@ -9,22 +9,20 @@ use std::{fs, path::PathBuf};
 use self::{command::Command, map::Map, plane::Plane};
 
 #[derive(Debug)]
-pub struct App<'a> {
+pub struct App {
     map: Map,
     planes: Vec<Plane>,
-    commands: Vec<Command<'a>>,
-    cur_command: String,
+    cur_command: CommandWriter,
 }
 
-impl App<'_> {
+impl App {
     pub fn new(path: PathBuf) -> Result<Self, Box<dyn std::error::Error>> {
         let map: Map = serde_json::from_str(fs::read_to_string(path)?.as_str())?;
 
         Ok(Self {
             map,
             planes: Vec::new(),
-            commands: Vec::new(),
-            cur_command: String::new(),
+            cur_command: CommandWriter::new(),
         })
     }
 

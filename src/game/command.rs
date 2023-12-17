@@ -5,10 +5,9 @@ use super::{
 };
 
 #[derive(Debug)]
-pub struct Command<'a> {
+pub struct Command {
     command_type: CommandType,
-    command_condition: Option<CommandCondition<'a>>,
-    plane: &'a Plane,
+    command_condition: Option<CommandCondition>,
 }
 
 #[derive(Debug)]
@@ -20,9 +19,9 @@ pub enum CommandType {
 }
 
 #[derive(Debug)]
-pub enum CommandCondition<'a> {
-    ArriveAirport(&'a Object),
-    ArriveBeacon(&'a Object),
+pub enum CommandCondition {
+    ArriveAirport(u8),
+    ArriveBeacon(u8),
     Delay(u8),
 }
 
@@ -90,15 +89,17 @@ impl CommandWriter {
     }
 
     //? Change Option<Command> to Result<Command, CommandBuildError>
-    pub fn build<'a>(&'a self, planes: &'a [Plane], objects: &'a [Object]) -> Option<Command> {
+    pub fn build<'a>(self, planes: &'a [Plane], objects: &'a [Object]) -> Option<(Command, char)> {
         if self.cur_string.is_empty() {
             return None;
         }
 
         let mut string_iter = self.cur_string.chars();
 
-        let plane_char = string_iter.next().unwrap();
-        let plane = planes.iter().find(|p| p.label() == &plane_char)?;
+        let plane= string_iter.next().unwrap();
+        if !planes.iter().any(|p| p.label() == &plane) {
+            return None
+        }
 
         let command_type_chars: [char; 2] = string_iter
             .by_ref()
@@ -118,28 +119,27 @@ impl CommandWriter {
 
         let condition_chars_vec: Vec<char> = string_iter.collect();
         if condition_chars_vec.is_empty() {
-            return Some(Command {
+            return Some((Command {
                 command_type,
                 command_condition: None,
-                plane,
-            });
+            }, plane));
         }
 
         let condition_chars: [char; 3] = condition_chars_vec.try_into().ok()?;
         let command_condition = match condition_chars {
             ['a', 'a', label] => {
-                let label = to_digit(label)?;
-                let airport = objects
-                    .iter()
-                    .find(|o| o.is_airport() && o.label().unwrap() == &label)?;
+                let airport = to_digit(label)?;
+                if !objects.iter().any(|o| o.is_airport() && o.label().unwrap() == &airport) {
+                    return None
+                }
 
                 Some(CommandCondition::ArriveAirport(airport))
             }
             ['a', 'b', label] => {
-                let label = to_digit(label)?;
-                let beacon = objects
-                    .iter()
-                    .find(|o| o.is_beacon() && o.label().unwrap() == &label)?;
+                let beacon = to_digit(label)?;
+                if !objects.iter().any(|o| o.is_beacon() && o.label().unwrap() == &beacon) {
+                    return None
+                }
 
                 Some(CommandCondition::ArriveBeacon(beacon))
             }
@@ -149,11 +149,16 @@ impl CommandWriter {
             _ => None,
         };
 
-        Some(Command {
+        Some((Command {
             command_type,
             command_condition,
-            plane,
-        })
+        }, plane))
+    }
+}
+
+impl Default for CommandWriter {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
