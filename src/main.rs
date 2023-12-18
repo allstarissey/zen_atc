@@ -128,7 +128,7 @@ fn run_app<B: Backend + io::Write>(
             continue;
         }
 
-        app.tick();
+        app.update();
         last_tick = Instant::now();
     }
 

@@ -42,7 +42,7 @@ impl App {
         self.cur_command.to_string()
     }
 
-    pub fn tick(&mut self) {
+    pub fn update(&mut self) {
         // todo!()
     }
 
