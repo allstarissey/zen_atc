@@ -1,5 +1,3 @@
-use std::time::Instant;
-
 use super::{
     object::Object,
     plane::{MarkStatus, Plane},
@@ -10,20 +8,20 @@ use super::{
 pub struct Command {
     command_type: CommandType,
     command_condition: Option<CommandCondition>,
-    time_stamp: Instant,
+    tick: u32,
 }
 
 impl Command {
-    fn new(command_type: CommandType, command_condition: Option<CommandCondition>) -> Self {
+    fn new(command_type: CommandType, command_condition: Option<CommandCondition>, tick: u32) -> Self {
         Self {
             command_type,
             command_condition,
-            time_stamp: Instant::now(),
+            tick,
         }
     }
 
-    pub fn time_stamp(&self) -> &Instant {
-        &self.time_stamp
+    pub fn tick(&self) -> &u32 {
+        &self.tick
     }
 }
 
@@ -108,7 +106,7 @@ impl CommandWriter {
     }
 
     //? Change Option<Command> to Result<Command, CommandBuildError>
-    pub fn build<'a>(self, planes: &'a [Plane], objects: &'a [Object]) -> Option<(Command, char)> {
+    pub fn build<'a>(self, planes: &'a [Plane], objects: &'a [Object], tick: u32) -> Option<(Command, char)> {
         if self.cur_string.is_empty() {
             return None;
         }
@@ -138,10 +136,7 @@ impl CommandWriter {
 
         let condition_chars_vec: Vec<char> = string_iter.collect();
         if condition_chars_vec.is_empty() {
-            return Some((
-                Command::new(command_type, None),
-                plane,
-            ));
+            return Some((Command::new(command_type, None, tick), plane));
         }
 
         let condition_chars: [char; 3] = condition_chars_vec.try_into().ok()?;
@@ -174,10 +169,7 @@ impl CommandWriter {
             _ => None,
         };
 
-        Some((
-            Command::new(command_type, command_condition),
-            plane,
-        ))
+        Some((Command::new(command_type, command_condition, tick), plane))
     }
 }
 

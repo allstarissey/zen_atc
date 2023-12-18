@@ -15,6 +15,7 @@ pub struct App {
     map: Map,
     planes: Vec<Plane>,
     cur_command: CommandWriter,
+    tick: u32,
 }
 
 impl App {
@@ -25,6 +26,7 @@ impl App {
             map,
             planes: Vec::new(),
             cur_command: CommandWriter::new(),
+            tick: 0,
         })
     }
 
@@ -46,7 +48,7 @@ impl App {
 
     fn build_command(&mut self) {
         let cur_command = std::mem::take(&mut self.cur_command);
-        let (command, plane) = match cur_command.build(&self.planes, self.map.objects()) {
+        let (command, plane) = match cur_command.build(&self.planes, self.map.objects(), self.tick) {
             Some(c) => c,
             None => return,
         };
