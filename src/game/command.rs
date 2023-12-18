@@ -98,9 +98,9 @@ impl CommandWriter {
 
         let mut string_iter = self.cur_string.chars();
 
-        let plane= string_iter.next().unwrap();
+        let plane = string_iter.next().unwrap();
         if !planes.iter().any(|p| p.label() == &plane) {
-            return None
+            return None;
         }
 
         let command_type_chars: [char; 2] = string_iter
@@ -121,26 +121,35 @@ impl CommandWriter {
 
         let condition_chars_vec: Vec<char> = string_iter.collect();
         if condition_chars_vec.is_empty() {
-            return Some((Command {
-                command_type,
-                command_condition: None,
-            }, plane));
+            return Some((
+                Command {
+                    command_type,
+                    command_condition: None,
+                },
+                plane,
+            ));
         }
 
         let condition_chars: [char; 3] = condition_chars_vec.try_into().ok()?;
         let command_condition = match condition_chars {
             ['a', 'a', label] => {
                 let airport = to_digit(label)?;
-                if !objects.iter().any(|o| o.is_airport() && o.label().unwrap() == &airport) {
-                    return None
+                if !objects
+                    .iter()
+                    .any(|o| o.is_airport() && o.label().unwrap() == &airport)
+                {
+                    return None;
                 }
 
                 Some(CommandCondition::ArriveAirport(airport))
             }
             ['a', 'b', label] => {
                 let beacon = to_digit(label)?;
-                if !objects.iter().any(|o| o.is_beacon() && o.label().unwrap() == &beacon) {
-                    return None
+                if !objects
+                    .iter()
+                    .any(|o| o.is_beacon() && o.label().unwrap() == &beacon)
+                {
+                    return None;
                 }
 
                 Some(CommandCondition::ArriveBeacon(beacon))
@@ -151,10 +160,13 @@ impl CommandWriter {
             _ => None,
         };
 
-        Some((Command {
-            command_type,
-            command_condition,
-        }, plane))
+        Some((
+            Command {
+                command_type,
+                command_condition,
+            },
+            plane,
+        ))
     }
 }
 

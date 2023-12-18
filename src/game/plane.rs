@@ -1,4 +1,7 @@
-use super::{util::{Direction, Point}, command::Command};
+use super::{
+    command::Command,
+    util::{Direction, Point},
+};
 
 #[derive(Debug)]
 pub struct Plane {
