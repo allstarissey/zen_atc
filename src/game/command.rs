@@ -1,3 +1,5 @@
+use std::time::Instant;
+
 use super::{
     object::Object,
     plane::{MarkStatus, Plane},
@@ -8,6 +10,17 @@ use super::{
 pub struct Command {
     command_type: CommandType,
     command_condition: Option<CommandCondition>,
+    time_stamp: Instant,
+}
+
+impl Command {
+    fn new(command_type: CommandType, command_condition: Option<CommandCondition>) -> Self {
+        Self {
+            command_type,
+            command_condition,
+            time_stamp: Instant::now(),
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -122,10 +135,7 @@ impl CommandWriter {
         let condition_chars_vec: Vec<char> = string_iter.collect();
         if condition_chars_vec.is_empty() {
             return Some((
-                Command {
-                    command_type,
-                    command_condition: None,
-                },
+                Command::new(command_type, None),
                 plane,
             ));
         }
@@ -161,10 +171,7 @@ impl CommandWriter {
         };
 
         Some((
-            Command {
-                command_type,
-                command_condition,
-            },
+            Command::new(command_type, command_condition),
             plane,
         ))
     }
