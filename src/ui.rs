@@ -9,7 +9,11 @@ use crate::game::App;
 
 pub fn ui(frame: &mut Frame, app: &App) {
     let frame_width = frame.size().width;
-    let (map_width, map_height) = app.dimensions();
+    // let (map_width, map_height) = app.dimensions();
+    let (map_width, map_height) = {
+        let (w, h) = app.dimensions();
+        (2 * w + 1, 2 * h + 1)
+    };
 
     let pad_width = (frame_width - map_width) / 2;
 
@@ -18,7 +22,7 @@ pub fn ui(frame: &mut Frame, app: &App) {
         .direction(LDirection::Vertical)
         .constraints([
             Constraint::Max(2),
-            Constraint::Length(*map_height),
+            Constraint::Length(map_height),
             Constraint::Max(2),
             Constraint::Min(10),
             Constraint::Length(3),
@@ -28,7 +32,7 @@ pub fn ui(frame: &mut Frame, app: &App) {
         .direction(LDirection::Horizontal)
         .constraints([
             Constraint::Max(pad_width),
-            Constraint::Min(*map_width),
+            Constraint::Min(map_width),
             Constraint::Max(pad_width),
         ])
         .split(chunks[1]);
