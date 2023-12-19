@@ -27,6 +27,10 @@ impl Plane {
         &self.label
     }
 
+    pub fn commands(&self) -> &[Command] {
+        &self.commands
+    }
+
     pub fn push_command(&mut self, command: Command) {
         self.commands.push(command);
     }

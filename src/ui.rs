@@ -1,6 +1,7 @@
 use ratatui::{
     layout::{Alignment, Constraint, Direction as LDirection, Layout},
-    widgets::{Block, Borders, Paragraph},
+    text::Line,
+    widgets::{Block, Borders, List, ListItem, Paragraph},
     Frame,
 };
 
@@ -43,9 +44,15 @@ pub fn ui(frame: &mut Frame, app: &App) {
     let command_block = make_block("Command");
 
     let command_writer = Paragraph::new(app.cur_command()).block(command_block);
+    let command_list_items: Vec<ListItem> = app
+        .commands()
+        .iter()
+        .map(|c| ListItem::new(Line::from(format!("[{}] {}: {}", c.0.tick(), c.1, c.0))))
+        .collect();
+    let command_list = List::new(command_list_items).block(command_list_block);
 
     frame.render_widget(radar_block, upper_chunks[1]);
-    frame.render_widget(command_list_block, lower_chunks[0]);
+    frame.render_widget(command_list, lower_chunks[0]);
     frame.render_widget(plane_list_block, lower_chunks[1]);
     frame.render_widget(command_writer, chunks[4]);
 }

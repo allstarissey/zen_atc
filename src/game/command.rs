@@ -12,7 +12,11 @@ pub struct Command {
 }
 
 impl Command {
-    fn new(command_type: CommandType, command_condition: Option<CommandCondition>, tick: u32) -> Self {
+    fn new(
+        command_type: CommandType,
+        command_condition: Option<CommandCondition>,
+        tick: u32,
+    ) -> Self {
         Self {
             command_type,
             command_condition,
@@ -22,6 +26,12 @@ impl Command {
 
     pub fn tick(&self) -> &u32 {
         &self.tick
+    }
+}
+
+impl std::fmt::Display for Command {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        todo!()
     }
 }
 
@@ -106,7 +116,12 @@ impl CommandWriter {
     }
 
     //? Change Option<Command> to Result<Command, CommandBuildError>
-    pub fn build<'a>(self, planes: &'a [Plane], objects: &'a [Object], tick: u32) -> Option<(Command, char)> {
+    pub fn build<'a>(
+        self,
+        planes: &'a [Plane],
+        objects: &'a [Object],
+        tick: u32,
+    ) -> Option<(Command, char)> {
         if self.cur_string.is_empty() {
             return None;
         }

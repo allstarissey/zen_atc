@@ -8,7 +8,11 @@ use std::{fs, path::PathBuf, time::Duration};
 
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 
-use self::{command::CommandWriter, map::Map, plane::Plane};
+use self::{
+    command::{Command, CommandWriter},
+    map::Map,
+    plane::Plane,
+};
 
 #[derive(Debug)]
 pub struct App {
@@ -48,7 +52,8 @@ impl App {
 
     fn build_command(&mut self) {
         let cur_command = std::mem::take(&mut self.cur_command);
-        let (command, plane) = match cur_command.build(&self.planes, self.map.objects(), self.tick) {
+        let (command, plane) = match cur_command.build(&self.planes, self.map.objects(), self.tick)
+        {
             Some(c) => c,
             None => return,
         };
@@ -92,5 +97,19 @@ impl App {
         }
 
         false
+    }
+
+    pub fn commands(&self) -> Vec<(&Command, char)> {
+        let mut commands: Vec<(&Command, char)> = self
+            .planes
+            .iter()
+            .flat_map(|plane| {
+                let label = plane.label();
+                plane.commands().iter().map(|command| (command, *label))
+            })
+            .collect();
+        commands.sort_by(|a, b| a.0.tick().cmp(b.0.tick()));
+
+        commands
     }
 }
